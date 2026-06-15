@@ -18,7 +18,7 @@ trigger:
    - bootstrap/*
 
 pool:
- vmImage: 'ubuntu-latest' 
+ name: 'Default'
 
 stages:
  - stage: Setup
