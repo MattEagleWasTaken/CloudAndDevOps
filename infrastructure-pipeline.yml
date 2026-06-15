@@ -1,0 +1,118 @@
+# CI/CD Infrastructure Pipeline
+# important: set backend-config variables as well as ARM_* Variables as Pipeline Variables - otherwise this Pipeline will not work. 
+# Required Pipeline Variables:
+   # - TF_BACKEND_RG
+   # - TF_BACKEND_SA
+   # - TF_BACKEND_CONTAINER
+   # - TF_BACKEND_KEY
+   # - ARM_CLIENT_ID
+   # - ARM_CLIENT_SECRET
+   # - ARM_TENANT_ID
+   # - SUBSCRIPTION_ID
+
+
+
+trigger:
+ branches:
+  include:
+   - main
+ paths: 
+  include:
+   - imageapp/*
+   - bootstrap/*
+
+pool:
+ vmImage: 'ubuntu-latest' #warum?
+
+stages:
+ - stage: Setup
+   jobs: 
+    - job: install_terraform
+      steps:
+      - task: TerraformInstaller@0
+
+ - stage: Init
+   dependsOn: Setup
+   jobs: 
+    - job: bootstrap_and_init
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sc-imageapp-azure'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          addSpnToEnvironment: true
+          inlineScript: |
+           export ARM_CLIENT_ID=$servicePrincipalId
+           export ARM_CLIENT_SECRET=$servicePrincipalKey
+           export ARM_TENANT_ID=$tenantId
+           export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+           cd bootstrap
+           terraform init
+           terraform apply -auto-approve -var-file="bootstrap.tfvars" 
+
+           cd ../imageapp
+           terraform init \
+           -backend-config="resource_group_name=$(TF_BACKEND_RG)" \
+           -backend-config="storage_account_name=$(TF_BACKEND_SA)" \
+           -backend-config="container_name=$(TF_BACKEND_CONTAINER)" \
+           -backend-config="key=$(TF_BACKEND_KEY)"
+
+ - stage: Plan
+   dependsOn: Init
+   jobs: 
+    - job: Plan
+      steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sc-imageapp-azure'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          addSpnToEnvironment: true
+          inlineScript: |
+           export ARM_CLIENT_ID=$servicePrincipalId
+           export ARM_CLIENT_SECRET=$servicePrincipalKey
+           export ARM_TENANT_ID=$tenantId
+           export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+           cd imageapp
+           terraform init \
+           -backend-config="resource_group_name=$(TF_BACKEND_RG)" \
+           -backend-config="storage_account_name=$(TF_BACKEND_SA)" \
+           -backend-config="container_name=$(TF_BACKEND_CONTAINER)" \
+           -backend-config="key=$(TF_BACKEND_KEY)"
+           terraform plan -out=tfplan
+      - task: PublishPipelineArtifact@1
+        inputs: 
+          targetPath: 'imageapp/tfplan'
+          artifact: 'tfplan'
+            
+ - stage: Apply
+   dependsOn: Plan 
+   jobs: 
+    - job: Apply
+      steps:
+      - task: DownloadPipelineArtifact@2
+        inputs: 
+          artifact: 'tfplan'
+          path: 'imageapp'
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: 'sc-imageapp-azure'
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          addSpnToEnvironment: true
+          inlineScript: |
+           export ARM_CLIENT_ID=$servicePrincipalId
+           export ARM_CLIENT_SECRET=$servicePrincipalKey
+           export ARM_TENANT_ID=$tenantId
+           export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+           cd imageapp
+
+           terraform init \
+           -backend-config="resource_group_name=$(TF_BACKEND_RG)" \
+           -backend-config="storage_account_name=$(TF_BACKEND_SA)" \
+           -backend-config="container_name=$(TF_BACKEND_CONTAINER)" \
+           -backend-config="key=$(TF_BACKEND_KEY)"
+
+           terraform apply tfplan
+ 

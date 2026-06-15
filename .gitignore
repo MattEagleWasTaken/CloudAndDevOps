@@ -1,0 +1,19 @@
+# Root
+**/.terraform/
+
+# Imageapp
+imageapp/terraform.tfvars
+imageapp/terraform.tfstate
+imageapp/terraform.tfstate.backup
+imageapp/naming_convention.md
+
+
+
+# Bootstrap
+bootstrap/bootstrap.tfvars
+bootstrap/terraform.tfstate
+bootstrap/terraform.tfstate.backup
+
+
+# Credentials
+set-env.ps1
