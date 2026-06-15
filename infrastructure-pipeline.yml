@@ -22,7 +22,7 @@ trigger:
    - bootstrap/*
 
 pool:
- vmImage: 'ubuntu-latest' #warum?
+ vmImage: 'ubuntu-latest' 
 
 stages:
  - stage: Setup
