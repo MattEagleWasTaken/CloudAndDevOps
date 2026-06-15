@@ -1,14 +1,10 @@
 # CI/CD Infrastructure Pipeline
-# important: set backend-config variables as well as ARM_* Variables as Pipeline Variables - otherwise this Pipeline will not work. 
+# important: set backend-config variables as Pipeline Variables - otherwise this Pipeline will not work. You will also need to install terraform from the azure devops marketplace.
 # Required Pipeline Variables:
    # - TF_BACKEND_RG
    # - TF_BACKEND_SA
    # - TF_BACKEND_CONTAINER
    # - TF_BACKEND_KEY
-   # - ARM_CLIENT_ID
-   # - ARM_CLIENT_SECRET
-   # - ARM_TENANT_ID
-   # - SUBSCRIPTION_ID
 
 
 
