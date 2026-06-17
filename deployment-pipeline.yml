@@ -1,0 +1,59 @@
+# Deployment Pipeline for the Web App
+# VM needs to have Python and pip preinstalled! 
+# required Pipeline Variables:
+# - APP_SERVICE_NAME 
+
+#app-imageapp-01-wger-mfis
+
+
+
+trigger:
+ branches:
+  include:
+   - main
+ paths: 
+  include:
+   - app/*
+
+
+pool:
+ name: 'Default' 
+
+
+stages:
+ - stage: Build
+   jobs: 
+    - job: build_app # pip install requirements via Oryx 
+      steps:
+       - script: |
+            cd app
+         displayName: 'Prepare app folder'
+      
+       - task: ArchiveFiles@2
+         inputs:
+           rootFolderOrFile: 'app'
+           includeRootFolder: false
+           archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+
+       - task: PublishPipelineArtifact@1
+         inputs:
+           targetPath: '$(Build.ArtifactStagingDirectory)/app.zip'
+           artifact: 'app-package'
+
+ - stage: Deploy
+   dependsOn: Build
+   jobs:
+   - job: deploy_app
+     steps: 
+     - task: DownloadPipelineArtifact@2
+       inputs: 
+         artifact: 'app-package'
+         path: '$(Pipeline.Workspace)/app-package'
+
+     - task: AzureWebApp@1
+       inputs:
+         azureSubscription: 'sc-imageapp-azure'
+         appType: 'webAppLinux'
+         appName: '$(APP_SERVICE_NAME)'
+         package: '$(Pipeline.Workspace)/app-package/app.zip'
+        

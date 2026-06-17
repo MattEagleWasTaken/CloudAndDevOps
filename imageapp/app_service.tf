@@ -22,6 +22,7 @@ resource "azurerm_linux_web_app" "imageapp" {
       "STORAGE_ACCOUNT_NAME"      = azurerm_storage_account.imageapp.name
       "STORAGE_CONTAINER_NAME"    = azurerm_storage_container.imageapp.name
       "STORAGE_CONNECTION_STRING" = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.storage_connection.id})" # For referencing the Key vault without hardcoding the connection string
+      "SCM_DO_BUILD_DURING_DEPLOYMENT" = "true"    
     }
 
 

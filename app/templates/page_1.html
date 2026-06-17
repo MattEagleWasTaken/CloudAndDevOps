@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Vault — Files</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0E1116;
+      --surface: #161B22;
+      --surface-hover: #1C222B;
+      --border: #262D38;
+      --text: #E7EBEF;
+      --text-muted: #7C8794;
+      --accent: #5FCFD4;
+      --accent-dim: rgba(95, 207, 212, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: 48px 24px 80px;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .title-block h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .title-block p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .count-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(95, 207, 212, 0.25);
+      border-radius: 100px;
+      padding: 6px 14px;
+      white-space: nowrap;
+    }
+
+    .upload-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #0E1116;
+      font-weight: 500;
+      font-size: 14px;
+      text-decoration: none;
+      padding: 11px 20px;
+      border-radius: 8px;
+      transition: opacity 0.15s ease;
+    }
+
+    .upload-link:hover { opacity: 0.85; }
+
+    .upload-link svg { width: 16px; height: 16px; }
+
+    main {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.12s ease;
+    }
+
+    .file-row:last-child { border-bottom: none; }
+    .file-row:hover { background: var(--surface-hover); }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .file-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .file-icon svg { width: 18px; height: 18px; color: var(--accent); }
+
+    .file-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .file-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13.5px;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 7px;
+      flex-shrink: 0;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .download-btn:hover {
+      color: var(--accent);
+      border-color: rgba(95, 207, 212, 0.4);
+    }
+
+    .download-btn svg { width: 14px; height: 14px; }
+
+    .empty {
+      padding: 56px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty p:first-child {
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .empty p:last-child { font-size: 13px; }
+
+    footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 540px) {
+      header { flex-direction: column; }
+      .file-name { max-width: 160px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title-block">
+        <h1>Image Vault</h1>
+        <p>Files currently stored in the container</p>
+      </div>
+      <span class="count-pill">{{ blobs|length }} file{{ 's' if blobs|length != 1 else '' }}</span>
+    </header>
+
+    <main>
+      {% if blobs %}
+        {% for blob in blobs %}
+        <div class="file-row">
+          <div class="file-info">
+            <div class="file-icon">
+              <img
+                src="{{ blob.url }}"
+                alt=""
+                class="file-thumb"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+              >
+              <svg style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="4" y="3" width="16" height="18" rx="2"/>
+                <path d="M9 8h6M9 12h6M9 16h4"/>
+              </svg>
+            </div>
+            <span class="file-name">{{ blob.name }}</span>
+          </div>
+          <a class="download-btn" href="{{ blob.url }}" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>
+            </svg>
+            Download
+          </a>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty">
+          <p>No files yet</p>
+          <p>Upload an image to see it listed here.</p>
+        </div>
+      {% endif %}
+    </main>
+
+    <footer>
+      Need to add a file? <a href="/upload">Go to upload →</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 # Root
 **/.terraform/
+**/.venv/
 
 # Imageapp
 imageapp/terraform.tfvars
