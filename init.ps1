@@ -6,7 +6,7 @@
 # run bootstrap
 Set-Location bootstrap
 terraform init
-terraform apply -var-file="bootstrap.tfvars" -auto-approve
+terraform apply -var-file="pipeline.tfvars" -auto-approve
 
 # get output values
 $resource_group_name  = terraform output -raw bootstrap_resource_group_name
