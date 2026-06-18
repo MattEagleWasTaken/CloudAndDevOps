@@ -55,3 +55,13 @@ variable "sto_acc_replication_type" {
   description = "The Azure replication type for the storage account"
   type = string
 }
+
+variable "user_assigned_identity_name" {
+  description = "The name of the user assigned identity for the web-App"
+  type = string
+}
+
+variable "kv_readers_group_object_id" {
+  description = "Object ID of the manually created Azure AD group for Key Vault readers"
+  type        = string
+}
