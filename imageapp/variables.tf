@@ -61,7 +61,3 @@ variable "user_assigned_identity_name" {
   type = string
 }
 
-variable "kv_readers_group_object_id" {
-  description = "Object ID of the manually created Azure AD group for Key Vault readers"
-  type        = string
-}

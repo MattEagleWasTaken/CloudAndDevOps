@@ -28,6 +28,5 @@ sto_acc_replication_type    = "LRS"
 
 user_assigned_identity_name = "id-imageapp-01-wger-mfis"
 
-kv_readers_group_object_id  = "4eb2cf79-1f67-431c-9396-57400d066f87"
 
 

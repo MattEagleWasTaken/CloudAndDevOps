@@ -9,8 +9,7 @@ resource "azurerm_linux_web_app" "imageapp" {
   service_plan_id     = azurerm_service_plan.imageapp.id
 
   identity {
-    type = "UserAssigned"
-    identity_ids = [ azurerm_user_assigned_identity.imageapp.id ]
+    type = "SystemAssigned"
   }
 
   site_config {
@@ -22,7 +21,7 @@ resource "azurerm_linux_web_app" "imageapp" {
     app_settings = { # Will get passed into the python environment as global variables.
       "STORAGE_ACCOUNT_NAME"           = azurerm_storage_account.imageapp.name
       "STORAGE_CONTAINER_NAME"         = azurerm_storage_container.imageapp.name
-      "STORAGE_CONNECTION_STRING"      = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.storage_connection.id})" # For referencing the Key vault without hardcoding the connection string
+      "STORAGE_CONNECTION_STRING" = "@Microsoft.KeyVault(VaultName=${azurerm_key_vault.imageapp.name};SecretName=${azurerm_key_vault_secret.storage_connection.name})"
       "SCM_DO_BUILD_DURING_DEPLOYMENT" = "true"
     }
 

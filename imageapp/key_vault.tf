@@ -18,10 +18,11 @@ resource "azurerm_role_assignment" "Admin" {
 }
 
 resource "azurerm_role_assignment" "User" {
-    principal_id          = var.kv_readers_group_object_id
-    scope                 = azurerm_key_vault.imageapp.id
-    role_definition_name  = local.key_vault_user_role
+  principal_id         = azurerm_linux_web_app.imageapp.identity[0].principal_id
+  scope                = azurerm_key_vault.imageapp.id
+  role_definition_name = local.key_vault_user_role
 }
+
 
 
 resource "azurerm_key_vault_secret" "storage_connection" {
