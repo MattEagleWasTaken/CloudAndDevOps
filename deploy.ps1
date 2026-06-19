@@ -1,40 +1,30 @@
-# Manual Deployment Script for the Image App Web App
-# Packages the app folder, then deploys it to the Azure App Service via Azure CLI.
-#
-# Prerequisites:
-#   - Azure CLI installed and logged in (az login)
-#   - Zip is available (e.g. via winget, brew, or preinstalled on Linux/Mac)
-#
-# Required parameters:
-#   -AppServiceName   Name of the target Azure App Service
-#   -ResourceGroup    Name of the resource group containing the App Service
-#
-# Usage example:
-#   ./deploy.ps1 -AppServiceName "app-imageapp-01-wger-mfis" -ResourceGroup "rg-imageapp-01-wger-mfis"
+# deploy.ps1
+# Deploys the app code to Azure App Service
+# Run from the root of the project (CloudAndDevOps/)
 
-param (
-    [Parameter(Mandatory = $true)]
-    [string]$AppServiceName,
+. ./set-env.ps1
 
-    [Parameter(Mandatory = $true)]
-    [string]$ResourceGroup
-)
+Write-Host "Logging in as Service Principal..."
+az login --service-principal `
+  --username $env:ARM_CLIENT_ID `
+  --password $env:ARM_CLIENT_SECRET `
+  --tenant $env:ARM_TENANT_ID
 
-$zip_path = "./app.zip"
-$app_folder = "./app"
+Write-Host "Installing dependencies..."
+pip install -r app/requirements.txt --target app/.python_packages/lib/site-packages
 
-# Package the app folder into a zip file
-Write-Host "Packaging app folder..."
-Compress-Archive -Path "$app_folder/*" -DestinationPath $zip_path -Force
+Write-Host "Zipping app folder..."
+Compress-Archive -Path "app/*" -DestinationPath "app.zip" -Force
 
-# Deploy the zip package to the Azure App Service
-Write-Host "Deploying to App Service: $AppServiceName..."
+Write-Host "Triggering remote build during deployment..."
 az webapp deploy `
-    --resource-group $ResourceGroup `
-    --name $AppServiceName `
-    --src-path $zip_path `
-    --type zip
+  --resource-group "rg-imageapp-01-wger-mfis" `
+  --name "app-imageapp-01-wger-mfis" `
+  --src-path "app.zip" `
+  --type zip `
+  --async true
 
-# Clean up the zip file
-Remove-Item $zip_path
-Write-Host "Deployment complete."
+# Restart to trigger Oryx build
+az webapp restart `
+  --resource-group "rg-imageapp-01-wger-mfis" `
+  --name "app-imageapp-01-wger-mfis"
