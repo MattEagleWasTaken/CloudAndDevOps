@@ -41,5 +41,7 @@ az role assignment create `
 Write-Host "Setup complete - logging out admin..."
 az logout
 
-Write-Host "Starting init.ps1 as Service Principal..."
-. ./init.ps1
+# Un-comment below if you want to automate.
+
+#Write-Host "Starting init.ps1 as Service Principal..."
+#. ./init.ps1

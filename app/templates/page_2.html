@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Vault — Upload</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0E1116;
+      --surface: #161B22;
+      --border: #262D38;
+      --text: #E7EBEF;
+      --text-muted: #7C8794;
+      --accent: #5FCFD4;
+      --accent-dim: rgba(95, 207, 212, 0.12);
+      --success: #6FCF97;
+      --success-dim: rgba(111, 207, 151, 0.12);
+      --error: #cf6f6f;
+      --error-dim: rgba(207, 111, 111, 0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .wrap { width: 100%; max-width: 460px; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 24px;
+    }
+
+    .back-link:hover { color: var(--text); }
+    .back-link svg { width: 14px; height: 14px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px 32px;
+    }
+
+    .card h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .card > p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    .success-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--success-dim);
+      border: 1px solid rgba(111, 207, 151, 0.3);
+      color: var(--success);
+      font-size: 13.5px;
+      font-weight: 500;
+      border-radius: 9px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+    }
+
+    .success-banner svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .error-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--error-dim);
+      border: 1px solid rgba(207, 111, 111, 0.3);
+      color: var(--error);
+      font-size: 13.5px;
+      font-weight: 500;
+      border-radius: 9px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+    }
+
+    .error-banner svg { width: 16px; height: 16px; flex-shrink: 0; }    
+
+    .dropzone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      padding: 36px 20px;
+      text-align: center;
+      transition: border-color 0.15s ease, background 0.15s ease;
+      cursor: pointer;
+    }
+
+    .dropzone:hover,
+    .dropzone.is-dragover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .dropzone svg {
+      width: 28px;
+      height: 28px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .dropzone .primary {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .dropzone .secondary {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .filename-preview {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12.5px;
+      color: var(--accent);
+      margin-top: 14px;
+    }
+   
+    
+    .filename-preview.is-visible { display: flex; }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px;
+      display: flex;
+      transition: color 0.15s ease;
+    }
+
+    .clear-btn:hover { color: var(--error); }
+    .clear-btn svg { width: 13px; height: 13px; }
+
+    button[type="submit"] {
+      width: 100%;
+      background: var(--accent);
+      color: #0E1116;
+      font-size: 14.5px;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      padding: 13px;
+      margin-top: 22px;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    button[type="submit"]:hover { opacity: 0.88; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to files
+    </a>
+
+    <div class="card">
+      <h1>Upload a file</h1>
+      <p>Add an image to the storage container.</p>
+
+      {% if success %}
+      <div class="success-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+        {{ success }}
+      </div>
+      {% endif %}
+
+      {% if error %}
+      <div class="error-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 8v5M12 16h.01"/>
+        </svg>
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="POST" enctype="multipart/form-data">
+        <label class="dropzone" id="dropzone">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M12 3v12M7 8l5-5 5 5M5 21h14"/>
+          </svg>
+          <div class="primary">Click to choose a file</div>
+          <div class="secondary">or drag and drop it here</div>
+          <input type="file" name="file" id="file-input" required accept="image/*">
+        </label>
+        <div class="filename-preview" id="filename-preview">
+          <span id="filename-text"></span>
+          <button type="button" id="clear-file" class="clear-btn" aria-label="Remove file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <button type="submit">Upload file</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('file-input');
+    const preview = document.getElementById('filename-preview');
+    const dropzone = document.getElementById('dropzone');
+    const filenameText = document.getElementById('filename-text');
+    const clearBtn = document.getElementById('clear-file');
+
+    function showFile(name) {
+      filenameText.textContent = name;
+      preview.classList.add('is-visible');
+    }
+
+    function clearFile() {
+      input.value = '';
+      preview.classList.remove('is-visible');
+    }
+
+    input.addEventListener('change', () => {
+      if (input.files.length) showFile(input.files[0].name);
+    });
+
+    clearBtn.addEventListener('click', clearFile);
+
+
+    ['dragenter', 'dragover'].forEach(evt =>
+      dropzone.addEventListener(evt, e => {
+        e.preventDefault();
+        dropzone.classList.add('is-dragover');
+      })
+    );
+
+    ['dragleave', 'drop'].forEach(evt =>
+      dropzone.addEventListener(evt, e => {
+        e.preventDefault();
+        dropzone.classList.remove('is-dragover');
+
+        if (evt === 'drop' && e.dataTransfer.files.length) {
+          input.files = e.dataTransfer.files;
+          showFile(input.files[0].name);
+        }
+      })
+    );
+  </script>
+</body>
+</html>

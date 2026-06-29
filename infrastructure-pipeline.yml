@@ -18,17 +18,10 @@ trigger:
    - bootstrap/*
 
 pool:
- name: 'Default'
+ name: 'Default' 
 
 stages:
- - stage: Setup
-   jobs: 
-    - job: install_terraform
-      steps:
-      - task: TerraformInstaller@0
-
  - stage: Init
-   dependsOn: Setup
    jobs: 
     - job: bootstrap_and_init
       steps:
@@ -45,7 +38,7 @@ stages:
            export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
            cd bootstrap
            terraform init
-           terraform apply -auto-approve -var-file="bootstrap.tfvars" 
+           terraform apply -auto-approve -var-file="pipeline.tfvars" 
 
            cd ../imageapp
            terraform init \
@@ -76,7 +69,7 @@ stages:
            -backend-config="storage_account_name=$(TF_BACKEND_SA)" \
            -backend-config="container_name=$(TF_BACKEND_CONTAINER)" \
            -backend-config="key=$(TF_BACKEND_KEY)"
-           terraform plan -out=tfplan
+           terraform plan -out=tfplan -var-file="pipeline.tfvars"
       - task: PublishPipelineArtifact@1
         inputs: 
           targetPath: 'imageapp/tfplan'
