@@ -38,7 +38,7 @@ All scripts are executed from the **project root** (`CloudAndDevOps/`).
 ./setup.ps1
 ```
 
-This script logs in as an admin via `az login`, creates a custom Azure role (`Key Vault RBAC Configurator`) and assigns it along with the `Contributor` role to the Service Principal. It then logs out and hands over to `init.ps1`.
+This script logs in as an admin via `az login`, creates a custom Azure role (`Key Vault RBAC Configurator`) and assigns it along with the `Contributor` role to the Service Principal. It then logs out and hands over to `init.ps1`. (currently commented out) 
 
 ### Infrastructure Initialisation
 
@@ -233,7 +233,7 @@ A Python Flask web application with two pages:
 
 **Random Suffix:** Resource names use personal initials as a suffix (e.g. `kv-imageapp-01-wger-mfis`) instead of a `random_integer` or `random_string`. Random suffixes cause naming instability — each `terraform destroy` + `terraform apply` cycle could produce a different name, making resources harder to identify in the Portal and potentially causing conflicts. Initials are predictable, reproducible, and globally unique enough for this use case. Anyone running this code should replace the suffix with their own initials as described in the naming convention.
 
-**Windows Agent:** The self-hosted pipeline agent runs Ubuntu 22.04 instead of Windows. A Windows agent would have allowed the PowerShell scripts (`init.ps1`, `deploy.ps1`) to be called directly from the pipeline YAML via `task: PowerShell@2`. On Linux, the equivalent logic was re-implemented as inline Bash in the YAML. Linux agents are the standard for CI/CD pipelines in production environments and are generally faster and more resource-efficient than Windows agents.
+**Windows Agent:** The self-hosted pipeline agent runs Ubuntu 22.04 instead of Windows. A Windows agent would have allowed the PowerShell scripts (`init.ps1`, `deploy.ps1`) to be called directly from the pipeline YAML via `task: PowerShell@2`. On Linux, the equivalent logic was re-implemented as inline Bash in the YAML. I understand that Linux agents are the standard for CI/CD pipelines in production environments and are generally faster and more resource-efficient than Windows agents, and since i dont own a Windows PC i went for the linux option :-).
 
 **PowerShell Scripts for Infrastructure:** The infrastructure pipeline (`infrastructure-pipeline.yml`) re-implements the logic of `init.ps1` directly in Bash rather than calling the PowerShell script. This is because the pipeline runs on a Linux agent and the scripts serve different purposes: the PowerShell scripts are intended for local/manual execution by a developer, while the pipeline YAML is the automated equivalent. Both approaches are valid; in a Windows-agent setup, the scripts could have been called directly.
 
